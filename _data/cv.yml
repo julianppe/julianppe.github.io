@@ -2,96 +2,127 @@
   type: map
   contents:
     - name: Full Name
-      value: Albert Einstein
-    - name: Date of Birth
-      value: 14th March 1879
-    - name: Languages
-      value: English, German
+      value: Julian Pedrazzi
+    - name: Email
+      value: pedrazzi.julian@gmail.com
+    - name: Address
+      value: Calle 6 Nro. 777, La Plata, Argentina
+    - name: Citizenship
+      value: Argentina, Italy
+    - name: Research Interests
+      value: Labor Economics, Gender Economics, Development Economics
 
 - title: Education
   type: time_table
   contents:
-    - title: PhD
-      institution: University of Zurich, Zurich, Switzerland
-      year: 1905
+    - title: PhD in Economics
+      institution: National University of La Plata
+      year: Expected 2026
       description:
-        - Description 1.
-        - Description 2.
-        - title: Description 3.
-          contents:
-            - Sub-description 1.
-            - Sub-description 2.
-    - title: Federal teaching diploma
-      institution: Eidgenössische Technische Hochschule, Zurich, Switzerland
-      year: 1900
+        - La Plata, Buenos Aires
+        - "Mentors: Mariana Marchionni, Ines Berniell"
+    - title: Master in Economics
+      institution: National University of La Plata
+      year: Jun-2021
       description:
-        - Description 1.
-        - Description 2.
+        - La Plata, Buenos Aires
+        - "Mentors: Mariana Marchionni, Ines Berniell"
+    - title: Bachelor in Economics
+      institution: National University of La Plata
+      year: Dec-2017
+      description:
+        - La Plata, Buenos Aires
 
-- title: Experience
+- title: Current Position
   type: time_table
   contents:
-    - title: Professor of Theoretical Physics
-      institution: Institute for Advanced Study, Princeton University
-      year: 1933 - 1955
-      description:
-        - Description 1.
-        - Description 2.
-        - title: Description 3.
-          contents:
-            - Sub-description 1.
-            - Sub-description 2.
-    - title: Visiting Professor
-      institution: California Institute of Technology, Pasadena, California, US
-      year: 1933
-      description:
-        - Description 1.
-        - Description 2.
+    - title: Junior Researcher
+      institution: Center for Distributive, Labor and Social Studies (CEDLAS)
+      year: 2020 - Present
 
-    - title: Director
-      institution: Kaiser Wilhelm Institute for Physics, Berlin, Germany.
-      year: 1917-1933
-
-    - title: Professor of Theoretical Physics
-      institution: Karl-Ferdinand University, Prague, Czechoslovakia
-      year: 1911 - 1917
-      description:
-
-    - title: Associate Professor of Theoretical Physics
-      institution: University of Zurich, Zurich, Switzerland
-      year: 1909 - 1911
-
-- title: Open Source Projects
+- title: Publications
   type: time_table
   contents:
-    - title: <a href="https://github.com/alshedivat/al-folio">al-folio</a>
-      year: 2015-now
-      description: A beautiful, simple, clean, and responsive Jekyll theme for academics.
+    - title: Women, Motherhood, and Structural Transformation&#58; Insights from Rural Latin America
+      year: Working Paper
+      description:
+        - With M. Marchionni & M.F. Pinto.
+        - CEDLAS WP
+    - title: Women Political Leaders as Agents of Environmental Change
+      year: R&R
+      description:
+        - With M. Marchionni, Ines Berniell & Mariana Viollaz.
+        - Journal of Development Economics
+    - title: The Last Hurdle? Unyielding Motherhood Effects in the Context of Declining Gender Inequality in Latin America
+      year: "2025"
+      description:
+        - With M. Marchionni.
+        - World Development
+    - title: Rental Market Discrimination Against Gays and Transgenders in Latin America&#58; A Correspondence Study in the Rental Housing Market
+      year: "2024"
+      description:
+        - With N. Abbate, I. Berniell, J. Coleff, L. Laguinge, M. Machelett, M. Marchionni & M.F. Pinto.
+        - Labour Economics
+    - title: Heterogeneous Effects of Forced Migration on the Female Labor Market&#58; The Venezuelan Exodus in Colombia
+      year: "2023"
+      description:
+        - With L. Peñaloza-Pacheco.
+        - Journal of Development Studies
 
-- title: Honors and Awards
+- title: Teaching Experience
   type: time_table
   contents:
-    - year: 1921
+    - title: Teaching Assistant — Microeconomics I
+      institution: Department of Economics (FCE-UNLP)
+      year: 2022 - Present
+    - title: Teaching Assistant — Economics of Distribution
+      institution: Department of Economics (FCE-UNLP)
+      year: 2020 - Present
+    - title: Teaching Assistant — Gender Economics
+      institution: Department of Economics (FCE-UNLP)
+      year: 2020 - Present
+
+- title: Honors and Scholarships
+  type: time_table
+  contents:
+    - year: 2022 - Present
       items:
-        - Nobel Prize in Physics
-        - Matteucci Medal
-    - year: 2029
+        - Postgraduate Scholarship (PhD's Degree) – CONICET
+    - year: 2020 - 2022
       items:
-        - Max Planck Medal
+        - Postgraduate Scholarship (Master's Degree) – UNLP
 
-- title: Academic Interests
+- title: Grants
+  type: time_table
+  contents:
+    - title: Researcher, CAF Call
+      year: 2024 - Present
+      description:
+        - "Project: The Rural World in Latin America and the Caribbean"
+    - title: Researcher, GDLab-BID Call
+      year: 2023 - 2025
+      description:
+        - "Project: Climate change and its nexus with gender and diversity"
+    - title: Junior Researcher, GDLab-BID Call
+      year: 2021 - 2023
+      description:
+        - "Project: Advancing LGBTQ+ inclusion with cutting-edge research"
+
+- title: Skills
   type: nested_list
   contents:
-    - title: Topic 1.
+    - title: Programming (Proficient)
       items:
-        - Description 1.
-        - Description 2.
-    - title: Topic 2.
+        - Stata
+        - Python
+        - LaTeX
+    - title: Programming (Familiar)
       items:
-        - Description 1.
-        - Description 2.
+        - R
+        - Power BI
 
-- title: Other Interests
+- title: Languages
   type: list
   contents:
-    - <u>Hobbies:</u> Hobby 1, Hobby 2, etc.
+    - Spanish (native)
+    - English (advanced)
