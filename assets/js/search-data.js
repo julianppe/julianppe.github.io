@@ -452,7 +452,7 @@ ninja.data = [{
         title: 'CV',
         section: 'Socials',
         handler: () => {
-          window.open("/assets/pdf/example_pdf.pdf", "_blank");
+          window.open("/assets/pdf/CV_pedrazzi.pdf", "_blank");
         },
       },{
         id: 'social-email',
@@ -462,20 +462,6 @@ ninja.data = [{
           window.open("mailto:%70%65%64%72%61%7A%7A%69.%6A%75%6C%69%61%6E@%67%6D%61%69%6C.%63%6F%6D", "_blank");
         },
       },{
-        id: 'social-inspire',
-        title: 'Inspire HEP',
-        section: 'Socials',
-        handler: () => {
-          window.open("https://inspirehep.net/authors/1010907", "_blank");
-        },
-      },{
-        id: 'social-rss',
-        title: 'RSS Feed',
-        section: 'Socials',
-        handler: () => {
-          window.open("/feed.xml", "_blank");
-        },
-      },{
         id: 'social-scholar',
         title: 'Google Scholar',
         section: 'Socials',
@@ -483,11 +469,11 @@ ninja.data = [{
           window.open("https://scholar.google.com/citations?user=qjTw5YMAAAAJ&hl", "_blank");
         },
       },{
-        id: 'social-custom_social',
-        title: 'Custom_social',
+        id: 'social-x',
+        title: 'X',
         section: 'Socials',
         handler: () => {
-          window.open("https://www.alberteinstein.com/", "_blank");
+          window.open("https://twitter.com/pedrazzijp", "_blank");
         },
       },{
       id: 'light-theme',
