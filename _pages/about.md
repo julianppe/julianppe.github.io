@@ -1,6 +1,6 @@
 ---
 layout: about
-title: about
+title: About
 permalink: /
 subtitle: <a href='https://www.cedlas.econo.unlp.edu.ar/wp/en/'>CEDLAS</a> and <a href='https://genlac.econo.unlp.edu.ar/home-en/'>GenLAC</a>. 
 
