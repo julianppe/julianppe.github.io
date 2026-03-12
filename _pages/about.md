@@ -31,6 +31,6 @@ I am a PhD candidate in Economics at the [Universidad Nacional de La Plata](http
 
 My work studies how gender gaps in the labor market emerge and persist, with particular attention to the role of motherhood, caregiving constraints, and structural transformation. I am also interested in the effects of forced migration and social programs on women's labor market outcomes and intra-household bargaining.
 
-I am currently completing my PhD under the supervision of [Mariana Marchionni](https://www.cedlas.econo.unlp.edu.ar/wp/en/integrantes/mariana-marchionni/) and [Inés Berniell](https://sites.google.com/view/inesberniell/home).
+I am currently completing my PhD under the supervision of [Mariana Marchionni](https://www.cedlas.econo.unlp.edu.ar/wp/mmarchionni/) and [Inés Berniell](https://inesberniell.weebly.com/).
 
 Feel free to reach out if you are interested in my work or potential collaborations.
