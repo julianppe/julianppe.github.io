@@ -27,8 +27,10 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-I am a researcher at [CEDLAS](https://www.cedlas.econo.unlp.edu.ar/) (Centro de Estudios Distributivos, Laborales y Sociales) at the Universidad Nacional de La Plata, Argentina. My work focuses on labor economics, gender economics, and social policy in Latin America.
+I am a PhD candidate in Economics at the [Universidad Nacional de La Plata](https://www.unlp.edu.ar/) and a Junior Researcher at [CEDLAS](https://www.cedlas.econo.unlp.edu.ar/) (Centro de Estudios Distributivos, Laborales y Sociales) and [GenLAC](https://genlac.econo.unlp.edu.ar/home-en/). My research lies at the intersection of labor economics, gender economics, and development economics, with a focus on Latin America.
 
-My research examines gender gaps and labor market dynamics, contributing to the understanding of socioeconomic conditions across the region. At CEDLAS, I collaborate on projects that generate rigorous empirical evidence to inform public policy debates.
+My work studies how gender gaps in the labor market emerge and persist, with particular attention to the role of motherhood, caregiving constraints, and structural transformation. I am also interested in the effects of forced migration and social programs on women's labor market outcomes and intra-household bargaining.
+
+I am currently completing my PhD under the supervision of [Mariana Marchionni](https://www.cedlas.econo.unlp.edu.ar/wp/en/integrantes/mariana-marchionni/) and [Inés Berniell](https://sites.google.com/view/inesberniell/home).
 
 Feel free to reach out if you are interested in my work or potential collaborations.
