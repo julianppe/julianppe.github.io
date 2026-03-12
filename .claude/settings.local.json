@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:unsplash.com)",
+      "Bash(curl -L -o \"c:\\\\Users\\\\Usuario\\\\Documents\\\\GitHub\\\\julianppe.github.io\\\\assets\\\\img\\\\publication_preview\\\\school_break.jpg\" \"https://plus.unsplash.com/premium_photo-1664910357521-ace54e29f8ba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=400\" -s -w \"%{http_code}\")",
+      "WebFetch(domain:www.pexels.com)",
+      "WebFetch(domain:images.pexels.com)",
+      "WebSearch"
+    ]
+  }
+}
