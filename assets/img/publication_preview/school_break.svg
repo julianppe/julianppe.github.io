@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#f0f4f8" rx="12"/>
+  <!-- School building -->
+  <rect x="55" y="90" width="90" height="70" fill="#4a90d9" rx="4"/>
+  <polygon points="50,90 100,50 150,90" fill="#2c6fad"/>
+  <!-- Door -->
+  <rect x="85" y="125" width="30" height="35" fill="#1a4a7a" rx="3"/>
+  <!-- Windows -->
+  <rect x="64" y="100" width="20" height="18" fill="#a8d4f5" rx="2"/>
+  <rect x="116" y="100" width="20" height="18" fill="#a8d4f5" rx="2"/>
+  <!-- Clock on roof -->
+  <circle cx="100" cy="72" r="10" fill="white" stroke="#2c6fad" stroke-width="2"/>
+  <line x1="100" y1="65" x2="100" y2="72" stroke="#2c6fad" stroke-width="1.5"/>
+  <line x1="100" y1="72" x2="105" y2="72" stroke="#2c6fad" stroke-width="1.5"/>
+  <!-- Female figure -->
+  <circle cx="155" cy="140" r="10" fill="#e8a87c"/>
+  <rect x="149" y="151" width="12" height="20" fill="#d95b8a" rx="3"/>
+  <!-- Hair -->
+  <path d="M148,137 Q155,128 162,137" fill="#5c3a1e" stroke="none"/>
+  <!-- Baby/child small figure -->
+  <circle cx="140" cy="155" r="7" fill="#e8a87c"/>
+  <rect x="135" y="163" width="10" height="14" fill="#f5a623" rx="2"/>
+  <!-- Connecting arm -->
+  <line x1="149" y1="158" x2="142" y2="158" stroke="#d95b8a" stroke-width="2.5"/>
+  <!-- Small text hint -->
+  <text x="100" y="188" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#666">School Break Effect</text>
+</svg>
