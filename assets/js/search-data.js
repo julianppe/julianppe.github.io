@@ -469,6 +469,13 @@ ninja.data = [{
           window.open("https://scholar.google.com/citations?user=qjTw5YMAAAAJ&hl", "_blank");
         },
       },{
+        id: 'social-repec_id',
+        title: 'Repec_id',
+        section: 'Socials',
+        handler: () => {
+          window.open("", "_blank");
+        },
+      },{
         id: 'social-x',
         title: 'X',
         section: 'Socials',
