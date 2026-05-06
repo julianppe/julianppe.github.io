@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GIC Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f8fafc;
+      padding: 16px 20px 24px;
+      color: #0f172a;
+    }
+    .container { max-width: 980px; margin: 0 auto; }
+
+    /* ── Top bar ── */
+    .top-bar {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+    }
+    h1 { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
+    .subtitle { font-size: 12px; color: #64748b; }
+
+    /* ── Labels ── */
+    .label {
+      font-size: 10px; font-weight: 600; color: #94a3b8;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 6px; display: block;
+    }
+
+    /* ── Country buttons ── */
+    .country-section { margin-bottom: 12px; }
+    .country-btns { display: flex; flex-wrap: wrap; gap: 4px; }
+    .country-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; padding: 5px 12px;
+      border: 1px solid #cbd5e1; border-radius: 4px;
+      background: white; color: #334155;
+      cursor: pointer; transition: background 0.1s, color 0.1s;
+    }
+    .country-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
+
+    /* ── Period label ── */
+    .period-label {
+      font-size: 12px; color: #64748b;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 10px;
+    }
+
+    /* ── Tabs ── */
+    .tabs { border-bottom: 1px solid #e2e8f0; }
+    .tab-buttons { display: flex; }
+    .tab-btn {
+      font-size: 13px; padding: 8px 18px;
+      border: none; border-bottom: 2px solid transparent;
+      background: #f8fafc; cursor: pointer; color: #64748b;
+      font-family: 'Inter', sans-serif; transition: color 0.15s;
+    }
+    .tab-btn:hover { color: #334155; }
+    .tab-btn.active { font-weight: 600; color: #1e293b; border-bottom-color: #1e293b; }
+
+    /* ── Series toggle controls ── */
+    .series-controls {
+      display: none; gap: 8px; flex-wrap: wrap; padding: 10px 0 2px;
+    }
+    .series-controls.visible { display: flex; }
+    .toggle-btn {
+      font-size: 12px; padding: 4px 10px;
+      border-radius: 4px; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      background: white; transition: opacity 0.15s;
+      user-select: none;
+    }
+    .toggle-btn.off { opacity: 0.35; }
+
+    /* ── Hover interpretation ── */
+    .hover-box {
+      font-size: 13px; color: #475569; line-height: 1.8;
+      background: white; border: 1px solid #e2e8f0;
+      border-left: 3px solid #1a56db; border-radius: 0 6px 6px 0;
+      padding: 12px 18px; margin-top: 8px; margin-bottom: 4px;
+      min-height: 56px;
+    }
+
+    /* ── Explanation box ── */
+    .explanation-box {
+      font-size: 12px; color: #475569; line-height: 1.7;
+      background: white; border: 1px solid #e2e8f0;
+      border-left: 3px solid #94a3b8; border-radius: 0 6px 6px 0;
+      padding: 10px 16px; margin-top: 6px; margin-bottom: 14px;
+    }
+
+    /* ── Stats cards ── */
+    .stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .stat-card {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 6px; padding: 8px 14px; min-width: 140px;
+      cursor: default;
+    }
+    .stat-label {
+      font-size: 10px; color: #94a3b8; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 3px;
+    }
+    .stat-value {
+      font-size: 15px; font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .stat-hint { font-size: 9px; color: #cbd5e1; margin-top: 3px; }
+
+    /* ── States ── */
+    .loading-msg { text-align: center; padding: 60px; color: #94a3b8; font-size: 14px; }
+    .error-msg {
+      background: #fee2e2; border: 1px solid #b91c1c; border-radius: 8px;
+      padding: 14px 18px; color: #b91c1c; font-size: 13px; margin: 20px 0; display: none;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 12px 12px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div id="loading-msg" class="loading-msg">Loading data&hellip;</div>
+  <div id="error-msg" class="error-msg"></div>
+
+  <div id="main" style="display:none">
+
+    <div class="top-bar">
+      <div>
+        <h1>Growth Incidence Curves</h1>
+        <p class="subtitle">
+          Annualized growth rate of per capita income by percentile
+          &middot; USD PPP 2021 &middot; p1&ndash;p100
+        </p>
+      </div>
+    </div>
+
+    <div class="country-section">
+      <span class="label">Country</span>
+      <div id="country-btns" class="country-btns"></div>
+    </div>
+
+    <div id="period-label" class="period-label"></div>
+
+    <div class="tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="gic">Total annualized GIC</button>
+        <button class="tab-btn" data-tab="decomp">Contributions (pp)</button>
+      </div>
+    </div>
+
+    <div id="series-controls" class="series-controls">
+      <button class="toggle-btn active" data-series="male"
+              style="border:1px solid #1d4ed8;color:#1d4ed8">
+        &#9679; Male labor market
+      </button>
+      <button class="toggle-btn active" data-series="female"
+              style="border:1px solid #b45309;color:#b45309">
+        &#9679; Female labor market
+      </button>
+      <button class="toggle-btn active" data-series="nonlabor"
+              style="border:1px solid #15803d;color:#15803d">
+        &#9679; Non-labor income
+      </button>
+    </div>
+
+    <div id="main-chart"></div>
+
+    <div id="hover-box" class="hover-box">
+      Hover over any point on the chart to see an interpretation here.
+    </div>
+
+    <div id="explanation-box" class="explanation-box"></div>
+
+    <div id="stats-row" class="stats-row"></div>
+
+  </div><!-- /#main -->
+</div><!-- /.container -->
+
+<script>
+// ── Constants ─────────────────────────────────────────────────────────────────
+const C_GIC    = "#1a56db";
+const C_MALE   = "#1d4ed8";
+const C_FEMALE = "#b45309";
+const C_NONLAB = "#15803d";
+const C_ZERO   = "#94a3b8";
+
+const TOOLTIP_GIC = (
+  "Each point shows the annualized growth rate (%) of mean per capita income " +
+  "for households ranked at that percentile of the income distribution. " +
+  "A downward-sloping curve indicates pro-poor growth — lower-income households " +
+  "experienced faster income growth than richer ones. " +
+  "The dashed line marks the unweighted mean across p1–p100."
+);
+
+const TOOLTIP_DECOMP = (
+  "Each point shows the annualized contribution (in percentage points) of each " +
+  "income source to total per capita income growth at that percentile. " +
+  "The three contributions sum to the total annualized GIC at each percentile. " +
+  "— Male labor: earnings × employment of male household members, divided by household size. " +
+  "— Female labor: earnings × employment of female household members, divided by household size. " +
+  "— Non-labor: pensions, social transfers, remittances and other non-wage income per capita."
+);
+
+const PLOTLY_CONFIG = {
+  displayModeBar: true,
+  modeBarButtonsToRemove: ["select2d", "lasso2d"],
+  displaylogo: false,
+  responsive: true,
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let DATA = {};
+let COUNTRIES = [];
+let currentCountry = null;
+let currentTab = "gic";
+let seriesVisible = { male: true, female: true, nonlabor: true };
+let listenersAdded = false;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(async function init() {
+  const jsonPath = new URL("../json/gic_data.json", document.baseURI).href;
+  try {
+    const res = await fetch(jsonPath);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+    const json = await res.json();
+    DATA = json.data;
+    COUNTRIES = json.countries;
+    if (!COUNTRIES || COUNTRIES.length === 0) throw new Error("No countries found in data.");
+    setupUI();
+  } catch (e) {
+    document.getElementById("loading-msg").style.display = "none";
+    const err = document.getElementById("error-msg");
+    err.style.display = "block";
+    err.innerHTML =
+      `<strong>Could not load data.</strong> ${e.message}<br>` +
+      `Run <code>export_gic_data.py</code> to generate <code>assets/json/gic_data.json</code>.`;
+  }
+})();
+
+// ── Setup ─────────────────────────────────────────────────────────────────────
+function setupUI() {
+  document.getElementById("loading-msg").style.display = "none";
+  document.getElementById("main").style.display = "block";
+  currentCountry = COUNTRIES[0];
+
+  // Country buttons
+  const btnsDiv = document.getElementById("country-btns");
+  COUNTRIES.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "country-btn" + (c === currentCountry ? " active" : "");
+    btn.textContent = c;
+    btn.addEventListener("click", () => {
+      currentCountry = c;
+      document.querySelectorAll(".country-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderAll();
+    });
+    btnsDiv.appendChild(btn);
+  });
+
+  // Tab buttons
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.tab === currentTab) return;
+      currentTab = btn.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("series-controls")
+        .classList.toggle("visible", currentTab === "decomp");
+      renderAll();
+    });
+  });
+
+  // Series toggle buttons
+  document.querySelectorAll(".toggle-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const series = btn.dataset.series;
+      seriesVisible[series] = !seriesVisible[series];
+      btn.classList.toggle("off", !seriesVisible[series]);
+      renderChart();
+    });
+  });
+
+  renderAll();
+}
+
+// ── Render all ────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderPeriodLabel();
+  renderExplanation();
+  renderChart();
+  renderStats();
+}
+
+function renderPeriodLabel() {
+  const d = DATA[currentCountry];
+  document.getElementById("period-label").textContent =
+    `${currentCountry}  ·  ${d.y1} → ${d.y2}  ·  percentiles 1–100`;
+}
+
+function renderExplanation() {
+  document.getElementById("explanation-box").textContent =
+    currentTab === "gic" ? TOOLTIP_GIC : TOOLTIP_DECOMP;
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function renderChart() {
+  const d   = DATA[currentCountry];
+  const pct = d.percentile;
+  const markerIdxes = pct.map((p, i) => p % 5 === 0 ? i : -1).filter(i => i >= 0);
+
+  const traces      = [];
+  const shapes      = [];
+  const annotations = [];
+  let yaxis_title, title_txt;
+
+  if (currentTab === "gic") {
+    const gic = d.gic;
+    const avg = gic.reduce((a, b) => a + b, 0) / gic.length;
+
+    // Main GIC line with fill
+    traces.push({
+      x: pct, y: gic, mode: "lines", name: "Annualized GIC",
+      line: { color: C_GIC, width: 2.5 },
+      fill: "tozeroy", fillcolor: "rgba(26,86,219,0.07)",
+      hovertemplate: "P%{x}  —  <b>%{y:.2f}%</b><extra></extra>",
+    });
+    // Markers every 5th percentile
+    traces.push({
+      x: markerIdxes.map(i => pct[i]),
+      y: markerIdxes.map(i => gic[i]),
+      mode: "markers", name: "", showlegend: false,
+      marker: { color: C_GIC, size: 6, symbol: "circle", line: { color: "white", width: 1.5 } },
+      hoverinfo: "skip",
+    });
+
+    // Zero line
+    shapes.push({
+      type: "line", xref: "paper", x0: 0, x1: 1, y0: 0, y1: 0,
+      line: { color: C_ZERO, width: 1, dash: "dot" },
+    });
+    // Mean line
+    shapes.push({
+      type: "line", xref: "paper", x0: 0, x1: 1, y0: avg, y1: avg,
+      line: { color: C_GIC, width: 1.2, dash: "dash" },
+    });
+    annotations.push({
+      xref: "paper", yref: "y", x: 1.01, y: avg,
+      text: `avg: ${avg.toFixed(2)}%`,
+      showarrow: false, font: { size: 11, color: C_GIC },
+      xanchor: "left",
+    });
+
+    // Poverty line markers
+    const povLines = [
+      { key: "lp830_y1",  yr: d.y1, lbl: "$8.30/day",  clr: "#d97706" },
+      { key: "lp1700_y1", yr: d.y1, lbl: "$17.00/day", clr: "#dc2626" },
+    ];
+    povLines.forEach(({ key, yr, lbl, clr }) => {
+      const xp = d.pov[key];
+      if (xp != null) {
+        shapes.push({
+          type: "line", yref: "paper", y0: 0, y1: 1, x0: xp, x1: xp,
+          line: { color: clr, width: 1.4, dash: "solid" },
+        });
+        annotations.push({
+          xref: "x", yref: "paper", x: xp, y: 1,
+          text: `P${xp} · ${lbl} (${yr})`,
+          showarrow: false, font: { size: 9.5, color: clr },
+          bgcolor: "rgba(255,255,255,0.80)",
+          yanchor: "bottom", xanchor: "left",
+        });
+      }
+    });
+
+    yaxis_title = "Annualized growth rate (%)";
+    title_txt   = "Total annualized GIC";
+
+  } else {
+    // Zero line
+    shapes.push({
+      type: "line", xref: "paper", x0: 0, x1: 1, y0: 0, y1: 0,
+      line: { color: C_ZERO, width: 1, dash: "dot" },
+    });
+
+    const series = [
+      { vals: d.male,     name: "Male labor market",   color: C_MALE,   dash: "solid",  sym: "circle",  key: "male" },
+      { vals: d.female,   name: "Female labor market", color: C_FEMALE, dash: "dash",   sym: "diamond", key: "female" },
+      { vals: d.nonlabor, name: "Non-labor income",    color: C_NONLAB, dash: "dot",    sym: "square",  key: "nonlabor" },
+    ];
+
+    series.forEach(({ vals, name, color, dash, sym, key }) => {
+      if (!seriesVisible[key]) return;
+      traces.push({
+        x: pct, y: vals, mode: "lines", name,
+        line: { color, width: 2, dash },
+        hovertemplate: `<b>${name}</b>: %{y:+.3f} pp<extra></extra>`,
+      });
+      traces.push({
+        x: markerIdxes.map(i => pct[i]),
+        y: markerIdxes.map(i => vals[i]),
+        mode: "markers", name: "", showlegend: false,
+        marker: { color, size: 6, symbol: sym, line: { color: "white", width: 1.5 } },
+        hoverinfo: "skip",
+      });
+    });
+
+    yaxis_title = "Annualized contribution (pp)";
+    title_txt   = "Growth decomposition by income source";
+  }
+
+  const layout = {
+    title: {
+      text: `<b>${title_txt}</b>  ` +
+            `<span style="color:#94a3b8;font-size:13px">${DATA[currentCountry].y1}–${DATA[currentCountry].y2}</span>`,
+      font: { size: 15 }, x: 0, xanchor: "left",
+    },
+    xaxis: {
+      title: { text: "Per capita income percentile", font: { size: 12 } },
+      showgrid: true, gridcolor: "#e2e8f0", gridwidth: 1,
+      range: [0, 101], dtick: 10, tickfont: { size: 11 },
+    },
+    yaxis: {
+      title: { text: yaxis_title, font: { size: 12 } },
+      showgrid: true, gridcolor: "#e2e8f0", gridwidth: 1,
+      zeroline: false, tickfont: { size: 11 },
+    },
+    plot_bgcolor: "white", paper_bgcolor: "#f8fafc",
+    legend: {
+      orientation: "h", yanchor: "top", y: -0.18,
+      xanchor: "center", x: 0.5, font: { size: 12 },
+    },
+    margin: { l: 65, r: 110, t: 60, b: 80 },
+    height: 440,
+    hovermode: "x unified",
+    shapes, annotations,
+  };
+
+  Plotly.react("main-chart", traces, layout, PLOTLY_CONFIG);
+
+  // Attach hover listeners once
+  if (!listenersAdded) {
+    const chartDiv = document.getElementById("main-chart");
+    chartDiv.on("plotly_hover",   handleHover);
+    chartDiv.on("plotly_unhover", () => {
+      document.getElementById("hover-box").textContent =
+        "Hover over any point on the chart to see an interpretation here.";
+    });
+    listenersAdded = true;
+  }
+}
+
+// ── Hover interpretation ──────────────────────────────────────────────────────
+function handleHover(eventData) {
+  if (!eventData || !eventData.points || !eventData.points.length) return;
+
+  const mainPts = eventData.points.filter(pt => pt.data && pt.data.name);
+  if (!mainPts.length) return;
+
+  const d    = DATA[currentCountry];
+  const y1   = parseInt(d.y1), y2 = parseInt(d.y2);
+  const nYrs = y2 - y1;
+  const pctV = mainPts[0].x;
+  const val  = mainPts[0].y;
+
+  const sfxMap = { 1: "st", 2: "nd", 3: "rd" };
+  const sfx = sfxMap[
+    (pctV % 100 > 10 && pctV % 100 < 14) ? 0 : pctV % 10
+  ] || "th";
+
+  const hoverBox = document.getElementById("hover-box");
+
+  if (currentTab === "gic") {
+    const sign = val >= 0 ? "grew" : "shrank";
+    const absV = Math.abs(val);
+    const totalEquiv = (Math.pow(1 + val / 100, nYrs) - 1) * 100;
+    const sign2 = totalEquiv >= 0 ? "+" : "";
+
+    hoverBox.innerHTML =
+      `<span style="font-weight:700;color:#1a56db">P${pctV} · ${val >= 0 ? "+" : ""}${val.toFixed(2)}% / year&nbsp; </span>` +
+      `Households at the ${pctV}${sfx} percentile saw their per capita income ${sign} ` +
+      `at ${absV.toFixed(2)}% per year on average between ${y1} and ${y2}. ` +
+      `Over the full ${nYrs}-year period this compounds to a total change of ${sign2}${totalEquiv.toFixed(1)}%.` +
+      `<br><span style="font-weight:600;color:#334155">What "annualized" means: </span>` +
+      `Rather than reporting the raw total change over ${nYrs} years, the annualized rate converts it into ` +
+      `the equivalent constant yearly growth that produces the same cumulative result — ` +
+      `making periods of different lengths comparable across countries.`;
+
+  } else {
+    const pctIdx = d.percentile.indexOf(pctV);
+    if (pctIdx === -1) return;
+
+    const parts = [];
+    const fmt = v => `${v >= 0 ? "+" : ""}${v.toFixed(3)} pp`;
+    if (seriesVisible.male)     parts.push(`male labor <b>${fmt(d.male[pctIdx])}</b>`);
+    if (seriesVisible.female)   parts.push(`female labor <b>${fmt(d.female[pctIdx])}</b>`);
+    if (seriesVisible.nonlabor) parts.push(`non-labor <b>${fmt(d.nonlabor[pctIdx])}</b>`);
+
+    hoverBox.innerHTML =
+      `<span style="font-weight:700;color:#334155">P${pctV} · contributions / year&nbsp; </span>` +
+      `At the ${pctV}${sfx} percentile: ${parts.join(", ")}.` +
+      `<br><span style="font-weight:600;color:#334155">What "annualized" means: </span>` +
+      `The total-period contribution of each source was scaled to a per-year equivalent ` +
+      `using the same ${nYrs}-year horizon, so contributions across all sources add up ` +
+      `to the total annualized GIC at every percentile.`;
+  }
+}
+
+// ── Stats cards ───────────────────────────────────────────────────────────────
+function renderStats() {
+  const d         = DATA[currentCountry];
+  const container = document.getElementById("stats-row");
+  container.innerHTML = "";
+
+  let items = [];
+
+  if (currentTab === "gic") {
+    const gic  = d.gic;
+    const avg  = gic.reduce((a, b) => a + b, 0) / gic.length;
+    const p50i = d.percentile.indexOf(50);
+    const p50v = p50i >= 0 ? gic[p50i] : gic[Math.floor(gic.length / 2)];
+    const bias = gic[0] > gic[gic.length - 1] ? "✓ Pro-poor" : "✗ Pro-rich";
+    const bval = gic[0] - gic[gic.length - 1];
+
+    items = [
+      { label: "Avg. p1–p100",        val: `${avg.toFixed(2)}%`,   num: avg,  tip: "Mean annualized growth rate across all displayed percentiles (p1–p100)." },
+      { label: "Median (p50)",         val: `${p50v.toFixed(2)}%`,  num: p50v, tip: "Annualized growth rate at the median household (p50)." },
+      { label: "Distributional bias",  val: bias,                   num: bval, tip: "Pro-poor if p1 grew faster than p100; pro-rich otherwise." },
+    ];
+
+    [["$8.30/day", "lp830_y1"], ["$17.00/day", "lp1700_y1"]].forEach(([lbl, key]) => {
+      const xp = d.pov[key];
+      items.push({
+        label: `Poverty line (${lbl}, ${d.y1})`,
+        val:   xp != null ? `~P${xp}` : "out of range",
+        num:   null,
+        tip:   `Approximate poverty headcount at ${lbl} in ${d.y1}: ~${xp}% of households were below this line.`,
+      });
+    });
+
+  } else {
+    const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+    items = [
+      { label: "Avg. male labor",   val: `${avg(d.male).toFixed(3)} pp`,    num: avg(d.male),    tip: "Mean annualized contribution of male labor income per capita (p1–p100)." },
+      { label: "Avg. female labor", val: `${avg(d.female).toFixed(3)} pp`,  num: avg(d.female),  tip: "Mean annualized contribution of female labor income per capita (p1–p100)." },
+      { label: "Avg. non-labor",    val: `${avg(d.nonlabor).toFixed(3)} pp`, num: avg(d.nonlabor), tip: "Mean annualized contribution of non-labor income per capita (p1–p100)." },
+    ];
+  }
+
+  items.forEach(({ label, val, num, tip }) => {
+    const color = num == null ? "#334155"
+      : num > 0 ? "#15803d"
+      : num < 0 ? "#b91c1c"
+      : "#334155";
+    const card = document.createElement("div");
+    card.className = "stat-card";
+    card.title = tip;
+    card.innerHTML =
+      `<div class="stat-label">${label}</div>` +
+      `<div class="stat-value" style="color:${color}">${val}</div>` +
+      `<div class="stat-hint">hover for details</div>`;
+    container.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>
