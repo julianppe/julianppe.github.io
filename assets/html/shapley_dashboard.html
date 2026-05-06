@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shapley Decomposition Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f8fafc;
+      padding: 28px 24px 36px;
+      color: #0f172a;
+    }
+    .container { max-width: 1180px; margin: 0 auto; }
+    h1 { font-size: 21px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+
+    /* ── Poverty line selector ── */
+    .pline-group { margin-bottom: 20px; }
+    .label {
+      font-size: 11px; font-weight: 600; color: #64748b;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 6px; display: block;
+    }
+    .radio-group { display: flex; align-items: center; gap: 0; }
+    .radio-group label {
+      font-size: 13px; color: #334155;
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer; margin-right: 12px;
+    }
+    .radio-group input { margin: 0; }
+
+    /* ── Tabs ── */
+    .tabs { border-bottom: 1px solid #e2e8f0; }
+    .tab-buttons { display: flex; }
+    .tab-btn {
+      font-size: 13px; padding: 8px 20px;
+      border: none; border-bottom: 2px solid transparent;
+      background: #f8fafc; cursor: pointer; color: #64748b;
+      font-family: 'Inter', sans-serif; transition: color 0.15s;
+    }
+    .tab-btn:hover { color: #334155; }
+    .tab-btn.active { font-weight: 600; color: #1e293b; border-bottom-color: #1e293b; }
+    .tab-content { display: none; padding-top: 16px; }
+    .tab-content.active { display: block; }
+
+    /* ── Country tab ── */
+    .country-select-group { margin-bottom: 16px; }
+    select {
+      width: 260px; font-size: 13px; padding: 6px 10px;
+      border: 1px solid #e2e8f0; border-radius: 6px;
+      background: white; color: #334155;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+    }
+    select:focus { outline: none; border-color: #94a3b8; }
+    .period-label {
+      font-size: 12px; color: #64748b;
+      font-family: 'IBM Plex Mono', monospace; margin-bottom: 20px;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      column-gap: 26px; align-items: start;
+    }
+
+    /* ── Total card ── */
+    .total-card {
+      border-radius: 10px; padding: 16px 14px;
+      text-align: center; margin-top: 70px;
+    }
+    .card-label-sm {
+      font-size: 10px; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
+    }
+    .card-value {
+      font-size: 34px; font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace; line-height: 1;
+    }
+    .card-unit { font-size: 14px; color: #94a3b8; margin-left: 2px; }
+    .card-change-lbl {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+      margin: 8px 0 12px;
+    }
+    .card-hr { border: none; border-top: 1px solid #e2e8f0; margin: 0 0 10px; }
+    .card-meta { font-size: 11px; color: #94a3b8; font-family: 'IBM Plex Mono', monospace; }
+
+    /* ── Legend ── */
+    .legend-row {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      margin-top: 14px; padding-left: 4px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 0; font-size: 11.5px; color: #334155; }
+    .legend-sq { font-size: 13px; margin-right: 5px; }
+    .legend-val { font-size: 11px; font-family: 'IBM Plex Mono', monospace; margin-left: 5px; }
+
+    /* ── LAC avg cards ── */
+    .avg-cards { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .avg-card { border-radius: 8px; padding: 10px 12px; text-align: center; min-width: 110px; }
+    .avg-card-title { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .avg-card-val { font-size: 20px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; line-height: 1; }
+    .avg-card-unit { font-size: 11px; color: #94a3b8; margin-left: 2px; }
+    .avg-card-sub { font-size: 9px; color: #cbd5e1; margin-top: 4px; }
+
+    /* ── Explanation & reference ── */
+    .explanation-box {
+      font-size: 12px; color: #475569; line-height: 1.7;
+      background: white; border: 1px solid #e2e8f0;
+      border-left: 3px solid #94a3b8; border-radius: 0 6px 6px 0;
+      padding: 10px 16px; margin-top: 14px;
+    }
+    .ref-wrapper {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 16px 20px; margin-top: 16px;
+    }
+    .ref-title {
+      font-size: 12px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px;
+    }
+    table.ref-table { border-collapse: collapse; width: 100%; font-size: 12px; color: #334155; line-height: 2; }
+    table.ref-table th { text-align: left; padding-right: 24px; border-bottom: 2px solid #e2e8f0; font-weight: 600; }
+    table.ref-table td { padding-right: 24px; vertical-align: top; }
+    table.ref-table td:last-child { text-align: center; padding-right: 0; }
+
+    /* ── States ── */
+    .loading-msg { text-align: center; padding: 60px; color: #94a3b8; font-size: 14px; }
+    .error-msg {
+      background: #fee2e2; border: 1px solid #b91c1c; border-radius: 8px;
+      padding: 14px 18px; color: #b91c1c; font-size: 13px; margin: 20px 0; display: none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      body { padding: 16px 12px 24px; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .total-card { margin-top: 0; margin-bottom: 16px; width: 100%; }
+      select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Shapley Decomposition of Poverty Change</h1>
+  <p class="subtitle">
+    Contribution of each component to the change in poverty headcount (FGT0)
+    &middot; 2016 &rarr; last available year
+  </p>
+
+  <div id="loading-msg" class="loading-msg">Loading data&hellip;</div>
+  <div id="error-msg" class="error-msg"></div>
+
+  <div id="main" style="display:none">
+
+    <!-- Poverty line selector -->
+    <div class="pline-group">
+      <span class="label">Poverty line (USD PPP 2021/day)</span>
+      <div class="radio-group">
+        <label><input type="radio" name="pline" value="$8.30" checked> $8.30</label>
+        <label><input type="radio" name="pline" value="$17.00"> $17.00</label>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="country">Country</button>
+        <button class="tab-btn" data-tab="lac">LAC &mdash; Countries</button>
+      </div>
+    </div>
+
+    <!-- Tab: Country -->
+    <div id="tab-country" class="tab-content active">
+      <div class="country-select-group">
+        <span class="label" style="margin-top:16px">Country</span>
+        <select id="country-select"></select>
+      </div>
+      <div id="period-label" class="period-label"></div>
+      <div class="chart-grid">
+        <div id="total-card"></div>
+        <div>
+          <div id="main-chart" style="height:420px;width:100%"></div>
+        </div>
+      </div>
+      <div id="legend-row" class="legend-row"></div>
+    </div>
+
+    <!-- Tab: LAC -->
+    <div id="tab-lac" class="tab-content">
+      <div id="lac-chart" style="height:460px;width:100%;margin-top:16px"></div>
+      <div id="lac-avg-cards" class="avg-cards"></div>
+    </div>
+
+    <!-- Explanation -->
+    <div class="explanation-box">
+      Each bar shows the contribution (in percentage points) of that component to the total
+      change in FGT0 between 2016 and the last available survey year. Positive values
+      increase poverty; negative values reduce it. Bars sum to the total shown in the card.
+    </div>
+
+    <!-- Reference table -->
+    <div class="ref-wrapper">
+      <div class="ref-title">Component reference</div>
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>What it measures</th>
+            <th>If &uarr; &rarr; poverty</th>
+          </tr>
+        </thead>
+        <tbody id="ref-tbody"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /#main -->
+</div><!-- /.container -->
+
+<script>
+// ── Constants ────────────────────────────────────────────────────────────────
+const COMPONENTS = [
+  "Male employment rate",
+  "Male labor earnings",
+  "Female employment rate",
+  "Female labor earnings",
+  "Non-labor income",
+  "Demographic dependency ratio",
+];
+const COLORS = {
+  "Male employment rate":         "#1d4ed8",
+  "Male labor earnings":          "#93c5fd",
+  "Female employment rate":       "#b45309",
+  "Female labor earnings":        "#fcd34d",
+  "Non-labor income":             "#15803d",
+  "Demographic dependency ratio": "#7c3aed",
+};
+const SHORT = {
+  "Male employment rate":         "Male empl. rate",
+  "Male labor earnings":          "Male earnings",
+  "Female employment rate":       "Female empl. rate",
+  "Female labor earnings":        "Female earnings",
+  "Non-labor income":             "Non-labor",
+  "Demographic dependency ratio": "Demography",
+};
+const REF_ROWS = [
+  ["Male employment rate",         "Employed men / working-age members (HH)"],
+  ["Male labor earnings",          "Total male labor income / employed men (HH)"],
+  ["Female employment rate",       "Employed women / working-age members (HH)"],
+  ["Female labor earnings",        "Total female labor income / employed women (HH)"],
+  ["Non-labor income",             "Per capita non-labor income (pensions + transfers)"],
+  ["Demographic dependency ratio", "Working-age members (15–69) / total members — captures household size and age structure"],
+];
+const PLOTLY_CONFIG = { displayModeBar: false, responsive: true };
+
+// ── State ────────────────────────────────────────────────────────────────────
+let DATA = {};
+let COUNTRIES = [];
+let currentCountry = null;
+let currentPline = "$8.30";
+let currentTab = "country";
+let lacInitialized = false;
+
+// ── Data loading ─────────────────────────────────────────────────────────────
+(async function init() {
+  // Resolve relative to this HTML file's location
+  const jsonPath = new URL('../json/shapley_data.json', document.baseURI).href;
+
+  try {
+    const res = await fetch(jsonPath);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+    const json = await res.json();
+    DATA = json.data;
+    COUNTRIES = json.countries;
+    if (!COUNTRIES || COUNTRIES.length === 0) throw new Error("No countries found in data.");
+    setupUI();
+  } catch (e) {
+    document.getElementById('loading-msg').style.display = 'none';
+    const err = document.getElementById('error-msg');
+    err.style.display = 'block';
+    err.innerHTML =
+      `<strong>Could not load data.</strong> ${e.message}<br>` +
+      `Run <code>export_shapley_data.py</code> to generate <code>assets/json/shapley_data.json</code>.`;
+  }
+})();
+
+// ── UI setup ─────────────────────────────────────────────────────────────────
+function setupUI() {
+  document.getElementById('loading-msg').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+
+  // Populate country dropdown
+  const sel = document.getElementById('country-select');
+  COUNTRIES.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    sel.appendChild(opt);
+  });
+  currentCountry = COUNTRIES[0];
+
+  // Build reference table
+  const tbody = document.getElementById('ref-tbody');
+  REF_ROWS.forEach(([comp, desc]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td><span style="color:${COLORS[comp]};font-weight:600">${comp}</span></td>` +
+      `<td>${desc}</td>` +
+      `<td style="color:#15803d;font-weight:600">&darr; falls</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Events
+  sel.addEventListener('change', e => { currentCountry = e.target.value; renderCountry(); });
+
+  document.querySelectorAll('input[name="pline"]').forEach(r => {
+    r.addEventListener('change', e => {
+      currentPline = e.target.value;
+      renderCountry();
+      if (currentTab === 'lac') renderLac();
+    });
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.tab === currentTab) return;
+      currentTab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + currentTab).classList.add('active');
+      if (currentTab === 'lac') {
+        renderLac();
+      } else {
+        setTimeout(() => Plotly.Plots.resize('main-chart'), 20);
+      }
+    });
+  });
+
+  renderCountry();
+}
+
+// ── Country chart ─────────────────────────────────────────────────────────────
+function renderCountry() {
+  const d = DATA[currentCountry];
+  const { y1, y2 } = d;
+  const pdata = (d.data && d.data[currentPline]) ? d.data[currentPline] : {};
+  const vals = COMPONENTS.map(c => pdata[c] != null ? pdata[c] : 0);
+  const total = pdata['Total'] != null
+    ? pdata['Total']
+    : vals.reduce((a, b) => a + b, 0);
+
+  const traces = COMPONENTS.map((comp, i) => ({
+    type: 'bar',
+    x: [SHORT[comp]],
+    y: [vals[i]],
+    name: comp,
+    marker: { color: COLORS[comp], line: { color: 'white', width: 1.5 } },
+    width: [0.52],
+    showlegend: false,
+    hovertemplate:
+      `<b>${comp}</b><br>` +
+      `${vals[i] >= 0 ? '+' : ''}${vals[i].toFixed(3)} pp<br>` +
+      `${vals[i] > 0 ? '↑ raises poverty' : '↓ reduces poverty'}` +
+      '<extra></extra>',
+  }));
+
+  const annotations = COMPONENTS.map((comp, i) => ({
+    x: SHORT[comp], y: vals[i],
+    text: (vals[i] >= 0 ? '+' : '') + vals[i].toFixed(2),
+    showarrow: false,
+    yanchor: vals[i] >= 0 ? 'bottom' : 'top',
+    yshift: vals[i] >= 0 ? 4 : -4,
+    font: { size: 10.5, color: COLORS[comp], family: 'IBM Plex Mono, monospace' },
+  }));
+
+  const absMax = Math.max(...vals.map(Math.abs), 0.1);
+  const pad = absMax * 0.3 + 0.5;
+  const ymin = Math.min(Math.min(...vals) - pad, -0.5);
+  const ymax = Math.max(Math.max(...vals) + pad,  0.5);
+
+  const layout = {
+    plot_bgcolor: 'white', paper_bgcolor: '#f8fafc',
+    margin: { l: 60, r: 20, t: 55, b: 20 },
+    height: 420,
+    title: {
+      text: `<b>Shapley decomposition — ${currentCountry}</b>  ` +
+            `<span style="color:#94a3b8;font-size:13px">${y1}–${y2} · ${currentPline}/day PPP 2021</span>`,
+      font: { size: 15 }, x: 0, xanchor: 'left',
+    },
+    xaxis: { showgrid: false, zeroline: false, tickfont: { size: 11.5 }, tickangle: 0 },
+    yaxis: {
+      title: { text: 'Contribution to Δ poverty rate (pp)', font: { size: 12 } },
+      showgrid: true, gridcolor: '#e2e8f0', zeroline: false,
+      tickfont: { size: 11 }, range: [ymin, ymax],
+    },
+    shapes: [{
+      type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 0,
+      line: { color: '#94a3b8', width: 1.2, dash: 'dot' },
+    }],
+    annotations,
+    hovermode: 'x', bargap: 0.35,
+  };
+
+  Plotly.react('main-chart', traces, layout, PLOTLY_CONFIG);
+
+  // Period label
+  document.getElementById('period-label').textContent = `${currentCountry}  ·  ${y1} → ${y2}`;
+
+  // Total card
+  renderTotalCard(total, y1, y2);
+
+  // Legend
+  renderLegend(pdata);
+}
+
+function renderTotalCard(total, y1, y2) {
+  const up   = total > 0;
+  const clr  = up ? '#b91c1c' : '#15803d';
+  const bg   = up ? '#fee2e2' : '#dcfce7';
+  const sign = total > 0 ? '+' : '';
+  const lbl  = up ? 'POVERTY ROSE' : 'POVERTY FELL';
+  document.getElementById('total-card').innerHTML = `
+    <div class="total-card" style="background:${bg};border:1.5px solid ${clr}">
+      <div class="card-label-sm">Total change</div>
+      <div style="margin-bottom:8px">
+        <span class="card-value" style="color:${clr}">${sign}${total.toFixed(2)}</span><span class="card-unit">pp</span>
+      </div>
+      <div class="card-change-lbl" style="color:${clr}">${lbl}</div>
+      <hr class="card-hr">
+      <div class="card-meta">${y1} → ${y2}</div>
+      <div class="card-meta" style="margin-top:2px">${currentPline} / day</div>
+    </div>`;
+}
+
+function renderLegend(pdata) {
+  const row = document.getElementById('legend-row');
+  row.innerHTML = '';
+  COMPONENTS.forEach(comp => {
+    const val = pdata[comp] != null ? pdata[comp] : 0;
+    const vc   = val > 0 ? '#b91c1c' : '#15803d';
+    const sign = val >= 0 ? '+' : '';
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML =
+      `<span class="legend-sq" style="color:${COLORS[comp]}">&#9632;</span>` +
+      `<span>${comp}</span>` +
+      `<span class="legend-val" style="color:${vc}">${sign}${val.toFixed(3)} pp</span>`;
+    row.appendChild(item);
+  });
+}
+
+// ── LAC chart ─────────────────────────────────────────────────────────────────
+function renderLac() {
+  const traces = COMPONENTS.map(comp => ({
+    type: 'bar',
+    name: comp,
+    x: COUNTRIES,
+    y: COUNTRIES.map(c => {
+      const pdata = DATA[c].data && DATA[c].data[currentPline] ? DATA[c].data[currentPline] : {};
+      return pdata[comp] != null ? pdata[comp] : 0;
+    }),
+    marker: { color: COLORS[comp], line: { color: 'white', width: 1 } },
+    hovertemplate: `<b>${comp}</b><br>%{x}  %{y:+.3f} pp<extra></extra>`,
+  }));
+
+  const layout = {
+    barmode: 'relative',
+    plot_bgcolor: 'white', paper_bgcolor: '#f8fafc',
+    margin: { l: 60, r: 20, t: 55, b: 20 },
+    height: 460,
+    title: {
+      text: `<b>Shapley decomposition — LAC countries</b>  ` +
+            `<span style="color:#94a3b8;font-size:13px">2016 → last available year · ${currentPline}/day PPP 2021</span>`,
+      font: { size: 15 }, x: 0, xanchor: 'left',
+    },
+    xaxis: { showgrid: false, zeroline: false, tickfont: { size: 12 }, tickangle: 0 },
+    yaxis: {
+      title: { text: 'Contribution to Δ poverty rate (pp)', font: { size: 12 } },
+      showgrid: true, gridcolor: '#e2e8f0', zeroline: false, tickfont: { size: 11 },
+    },
+    shapes: [{
+      type: 'line', xref: 'paper', x0: 0, x1: 1, y0: 0, y1: 0,
+      line: { color: '#94a3b8', width: 1.2, dash: 'dot' },
+    }],
+    legend: {
+      orientation: 'h', yanchor: 'top', y: -0.12,
+      xanchor: 'center', x: 0.5, font: { size: 11 },
+    },
+    hovermode: 'x unified', bargap: 0.3,
+  };
+
+  Plotly.react('lac-chart', traces, layout, PLOTLY_CONFIG);
+  lacInitialized = true;
+
+  renderAvgCards();
+}
+
+function renderAvgCards() {
+  const n = COUNTRIES.length;
+  const container = document.getElementById('lac-avg-cards');
+  container.innerHTML = '';
+
+  const avgTotal = COUNTRIES.reduce((sum, c) => {
+    const pdata = (DATA[c].data && DATA[c].data[currentPline]) ? DATA[c].data[currentPline] : {};
+    const t = pdata['Total'] != null
+      ? pdata['Total']
+      : COMPONENTS.reduce((s, comp) => s + (pdata[comp] != null ? pdata[comp] : 0), 0);
+    return sum + t;
+  }, 0) / n;
+
+  const up   = avgTotal > 0;
+  const clr  = up ? '#b91c1c' : '#15803d';
+  const bg   = up ? '#fee2e2' : '#dcfce7';
+  const sign = avgTotal > 0 ? '+' : '';
+  const lbl  = up ? 'POVERTY ROSE' : 'POVERTY FELL';
+
+  const totalCard = document.createElement('div');
+  totalCard.className = 'avg-card';
+  totalCard.style.cssText = `background:${bg};border:1.5px solid ${clr};min-width:130px`;
+  totalCard.innerHTML =
+    `<div class="avg-card-title" style="font-size:10px">Avg. total change</div>` +
+    `<div><span class="avg-card-val" style="color:${clr};font-size:26px">${sign}${avgTotal.toFixed(2)}</span>` +
+    `<span class="avg-card-unit">pp</span></div>` +
+    `<div style="font-size:9px;font-weight:700;color:${clr};letter-spacing:.06em;margin-top:4px">${lbl}</div>`;
+  container.appendChild(totalCard);
+
+  COMPONENTS.forEach(comp => {
+    const avgVal = COUNTRIES.reduce((sum, c) => {
+      const pdata = (DATA[c].data && DATA[c].data[currentPline]) ? DATA[c].data[currentPline] : {};
+      return sum + (pdata[comp] != null ? pdata[comp] : 0);
+    }, 0) / n;
+    const vc   = avgVal > 0 ? '#b91c1c' : '#15803d';
+    const s    = avgVal >= 0 ? '+' : '';
+    const card = document.createElement('div');
+    card.className = 'avg-card';
+    card.style.cssText = `background:white;border:1.5px solid ${COLORS[comp]}`;
+    card.innerHTML =
+      `<div class="avg-card-title">${SHORT[comp]}</div>` +
+      `<div><span class="avg-card-val" style="color:${vc}">${s}${avgVal.toFixed(3)}</span>` +
+      `<span class="avg-card-unit">pp</span></div>` +
+      `<div class="avg-card-sub">LAC simple avg.</div>`;
+    container.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>
