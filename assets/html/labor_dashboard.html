@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labor Market Descriptives</title>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f8fafc;
+      padding: 16px 20px 28px;
+      color: #0f172a;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    h1 { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
+    .subtitle { font-size: 12px; color: #64748b; margin-bottom: 18px; }
+
+    .label {
+      font-size: 10px; font-weight: 600; color: #94a3b8;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 6px; display: block;
+    }
+
+    /* ── Country buttons ── */
+    .section { margin-bottom: 14px; }
+    .country-btns { display: flex; flex-wrap: wrap; gap: 4px; }
+    .country-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; padding: 5px 12px;
+      border: 1px solid #cbd5e1; border-radius: 4px;
+      background: white; color: #334155;
+      cursor: pointer; transition: background 0.1s, color 0.1s;
+    }
+    .country-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
+
+    /* ── Comparison dropdown ── */
+    .comp-select {
+      width: 280px; font-size: 13px; padding: 6px 10px;
+      border: 1px solid #e2e8f0; border-radius: 6px;
+      background: white; color: #334155;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+    }
+    .comp-select:focus { outline: none; border-color: #94a3b8; }
+
+    /* ── Variable tabs ── */
+    .tabs { border-bottom: 1px solid #e2e8f0; margin-bottom: 18px; }
+    .tab-buttons { display: flex; flex-wrap: wrap; }
+    .tab-btn {
+      font-size: 13px; padding: 8px 18px;
+      border: none; border-bottom: 2px solid transparent;
+      background: #f8fafc; cursor: pointer; color: #64748b;
+      font-family: 'Inter', sans-serif; transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: #334155; }
+    .tab-btn.active { font-weight: 600; color: #1e293b; border-bottom-color: #1e293b; }
+
+    /* ── Controls card ── */
+    .controls-card {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 14px 18px; margin-bottom: 18px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .control-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .control-row .label { margin-bottom: 0; white-space: nowrap; min-width: 110px; }
+
+    /* ── Checkboxes ── */
+    .check-group { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; }
+    .check-label {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 13px; cursor: pointer; user-select: none;
+    }
+    .check-label input[type="checkbox"] { cursor: pointer; width: 14px; height: 14px; }
+
+    /* ── Breakdown buttons ── */
+    .breakdown-btns { display: flex; gap: 6px; }
+    .breakdown-btn {
+      font-size: 12px; padding: 6px 14px; border-radius: 4px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      border: 1.5px solid #cbd5e1; background: white; color: #334155;
+      font-weight: 400; transition: background 0.1s, color 0.1s;
+    }
+    .breakdown-btn.active {
+      border-color: #1e293b; background: #1e293b; color: white; font-weight: 600;
+    }
+
+    /* ── Change table ── */
+    .change-table-wrap {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 14px 20px; margin-top: 14px;
+    }
+    .change-table-title {
+      font-size: 11px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px;
+    }
+    .change-table { border-collapse: collapse; width: 100%; }
+    .change-table th {
+      text-align: left; padding: 0 20px 8px 0;
+      border-bottom: 2px solid #e2e8f0;
+      font-size: 11px; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .change-table th:last-child { text-align: right; padding-right: 0; }
+    .change-table td {
+      padding: 7px 20px 7px 0;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .change-table td:last-child { text-align: right; padding-right: 0; }
+    .change-table tr:last-child td { border-bottom: none; }
+
+    /* ── Footnote ── */
+    .footnote {
+      font-size: 12px; color: #64748b; line-height: 1.7;
+      background: white; border: 1px solid #e2e8f0;
+      border-left: 3px solid #94a3b8; border-radius: 0 6px 6px 0;
+      padding: 10px 16px; margin-top: 12px;
+    }
+
+    /* ── States ── */
+    .loading-msg { text-align: center; padding: 60px; color: #94a3b8; font-size: 14px; }
+    .error-msg {
+      background: #fee2e2; border: 1px solid #b91c1c; border-radius: 8px;
+      padding: 14px 18px; color: #b91c1c; font-size: 13px; margin: 20px 0; display: none;
+    }
+
+    @media (max-width: 680px) {
+      body { padding: 12px 12px 20px; }
+      .tab-btn { padding: 7px 12px; font-size: 12px; }
+      .control-row .label { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div id="loading-msg" class="loading-msg">Loading data&hellip;</div>
+  <div id="error-msg" class="error-msg"></div>
+
+  <div id="main" style="display:none">
+
+    <h1>Labor Market Descriptives</h1>
+    <p class="subtitle">
+      Working-age population (15&ndash;69) &middot; Individual-level outcomes &middot; SEDLAC-03
+    </p>
+
+    <!-- Country selector -->
+    <div class="section">
+      <span class="label">Primary country</span>
+      <div id="country-btns" class="country-btns"></div>
+    </div>
+
+    <!-- Comparison country -->
+    <div class="section">
+      <span class="label">Compare with (optional)</span>
+      <select id="comp-country" class="comp-select">
+        <option value="">None &mdash; single country view</option>
+      </select>
+    </div>
+
+    <!-- Variable tabs -->
+    <div class="tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-var="empl">Employment rate</button>
+        <button class="tab-btn" data-var="lfp">Labor force participation</button>
+        <button class="tab-btn" data-var="ila">Labor income (employed)</button>
+        <button class="tab-btn" data-var="hours">Hours worked (employed)</button>
+        <button class="tab-btn" data-var="informal">Informality rate</button>
+      </div>
+    </div>
+
+    <!-- Series controls card -->
+    <div class="controls-card">
+
+      <!-- Gender -->
+      <div class="control-row">
+        <span class="label">Gender</span>
+        <div id="gender-checks" class="check-group"></div>
+      </div>
+
+      <!-- Breakdown selector -->
+      <div class="control-row">
+        <span class="label">Disaggregate by</span>
+        <div class="breakdown-btns">
+          <button class="breakdown-btn active" data-breakdown="skill">Skill level</button>
+          <button class="breakdown-btn" data-breakdown="age">Age group</button>
+        </div>
+      </div>
+
+      <!-- Skill checklist -->
+      <div id="skill-panel" class="control-row">
+        <span class="label">Skill level</span>
+        <div id="skill-checks" class="check-group"></div>
+      </div>
+
+      <!-- Age checklist -->
+      <div id="age-panel" class="control-row" style="display:none">
+        <span class="label">Age group</span>
+        <div id="age-checks" class="check-group"></div>
+      </div>
+
+    </div>
+
+    <!-- Chart -->
+    <div id="main-chart"></div>
+
+    <!-- Change table -->
+    <div id="change-table"></div>
+
+    <!-- Footnote -->
+    <div class="footnote">
+      <strong>Employment:</strong> ocupado. <strong>LFP:</strong> pea (falls back to employment if missing).
+      Income, hours, and informality conditional on employment.
+      <strong>Informality:</strong> union of (1)&nbsp;no pension rights, (2)&nbsp;self-employed without tertiary,
+      (3)&nbsp;wage worker with zero earnings.
+      <strong>Skill:</strong> 0&ndash;8 yrs&nbsp;=&nbsp;low; 9&ndash;12&nbsp;=&nbsp;medium; 13+&nbsp;=&nbsp;high.
+      <strong>Age:</strong> 15&ndash;24&nbsp;=&nbsp;young; 25&ndash;54&nbsp;=&nbsp;prime; 55&ndash;69&nbsp;=&nbsp;older.
+      Weights: pondera. Source: SEDLAC-03.
+    </div>
+
+  </div><!-- /#main -->
+</div><!-- /.container -->
+
+<script>
+// ── Meta ──────────────────────────────────────────────────────────────────────
+const VARS = {
+  empl:     { label: "Employment rate",           ytitle: "Share of working-age population", isPct: true,  hib: true  },
+  lfp:      { label: "Labor force participation", ytitle: "Share of working-age population", isPct: true,  hib: true  },
+  ila:      { label: "Labor income (employed)",   ytitle: "USD PPP 2021 / month",            isPct: false, hib: true  },
+  hours:    { label: "Hours worked (employed)",   ytitle: "Weekly hours, primary job",        isPct: false, hib: null  },
+  informal: { label: "Informality rate",          ytitle: "Share of employed workers",        isPct: true,  hib: false },
+};
+
+const GENDER_COLOR = { total: "#475569", men: "#1d4ed8", women: "#b45309" };
+const GENDER_LABEL = { total: "Total", men: "Men", women: "Women" };
+
+const SKILL_DASH  = { total: "solid", low: "dot",    med: "dash",    high: "dashdot" };
+const SKILL_SYM   = { total: "circle", low: "square", med: "diamond", high: "triangle-up" };
+const SKILL_LABEL = { total: "Total", low: "Low skill (0–8 yrs)", med: "Medium skill (9–12 yrs)", high: "High skill (13+ yrs)" };
+const SKILLS      = ["total", "low", "med", "high"];
+
+const AGE_DASH  = { total: "solid", young: "dot",    prime: "dash",    older: "dashdot" };
+const AGE_SYM   = { total: "circle", young: "square", prime: "diamond", older: "triangle-up" };
+const AGE_LABEL = { total: "Total", young: "Young (15–24)", prime: "Prime age (25–54)", older: "Older (55–69)" };
+const AGE_GROUPS = ["total", "young", "prime", "older"];
+
+const PLOTLY_CONFIG = {
+  displayModeBar: true,
+  modeBarButtonsToRemove: ["select2d", "lasso2d"],
+  displaylogo: false, responsive: true,
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let DATA = {};
+let COUNTRIES = [];
+let currentCountry = null;
+let compCountry    = "";
+let currentVar     = "empl";
+let selGenders     = ["men", "women"];
+let breakdown      = "skill";
+let selSkills      = ["total"];
+let selAges        = ["total"];
+let chartInitialized = false;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(async function init() {
+  const jsonPath = new URL("../json/labor_data.json", document.baseURI).href;
+  try {
+    const res = await fetch(jsonPath);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+    const json = await res.json();
+    DATA     = json.data;
+    COUNTRIES = json.countries;
+    if (!COUNTRIES || COUNTRIES.length === 0) throw new Error("No countries found in data.");
+    setupUI();
+  } catch (e) {
+    document.getElementById("loading-msg").style.display = "none";
+    const err = document.getElementById("error-msg");
+    err.style.display = "block";
+    err.innerHTML =
+      `<strong>Could not load data.</strong> ${e.message}<br>` +
+      `Run <code>export_labor_data.py</code> to generate <code>assets/json/labor_data.json</code>.`;
+  }
+})();
+
+// ── Setup ─────────────────────────────────────────────────────────────────────
+function setupUI() {
+  document.getElementById("loading-msg").style.display = "none";
+  document.getElementById("main").style.display = "block";
+  currentCountry = COUNTRIES[0];
+
+  // Country buttons
+  const btnsDiv = document.getElementById("country-btns");
+  COUNTRIES.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "country-btn" + (c === currentCountry ? " active" : "");
+    btn.textContent = c;
+    btn.addEventListener("click", () => {
+      currentCountry = c;
+      document.querySelectorAll(".country-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderAll();
+    });
+    btnsDiv.appendChild(btn);
+  });
+
+  // Comparison country dropdown
+  const compSel = document.getElementById("comp-country");
+  COUNTRIES.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c; opt.textContent = c;
+    compSel.appendChild(opt);
+  });
+  compSel.addEventListener("change", e => { compCountry = e.target.value; renderAll(); });
+
+  // Variable tabs
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.var === currentVar) return;
+      currentVar = btn.dataset.var;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderAll();
+    });
+  });
+
+  // Breakdown buttons
+  document.querySelectorAll(".breakdown-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.breakdown === breakdown) return;
+      breakdown = btn.dataset.breakdown;
+      document.querySelectorAll(".breakdown-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("skill-panel").style.display = breakdown === "skill" ? "flex" : "none";
+      document.getElementById("age-panel").style.display   = breakdown === "age"   ? "flex" : "none";
+      renderAll();
+    });
+  });
+
+  // Gender checkboxes
+  buildCheckboxes("gender-checks",
+    [
+      { value: "total", label: "Total",  color: GENDER_COLOR.total },
+      { value: "men",   label: "Men",    color: GENDER_COLOR.men },
+      { value: "women", label: "Women",  color: GENDER_COLOR.women },
+    ],
+    selGenders,
+    val => {
+      selGenders = val;
+      renderAll();
+    }
+  );
+
+  // Skill checkboxes
+  buildCheckboxes("skill-checks",
+    SKILLS.map(s => ({ value: s, label: SKILL_LABEL[s], color: null })),
+    selSkills,
+    val => { selSkills = val; renderAll(); }
+  );
+
+  // Age checkboxes
+  buildCheckboxes("age-checks",
+    AGE_GROUPS.map(a => ({ value: a, label: AGE_LABEL[a], color: null })),
+    selAges,
+    val => { selAges = val; renderAll(); }
+  );
+
+  renderAll();
+}
+
+// ── Checkbox builder ──────────────────────────────────────────────────────────
+function buildCheckboxes(containerId, items, defaultSelected, onChange) {
+  const container = document.getElementById(containerId);
+  const selected  = new Set(defaultSelected);
+
+  items.forEach(({ value, label, color }) => {
+    const lbl = document.createElement("label");
+    lbl.className = "check-label";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.value = value;
+    cb.checked = selected.has(value);
+
+    const span = document.createElement("span");
+    span.textContent = label;
+    if (color) { span.style.color = color; span.style.fontWeight = "600"; }
+
+    cb.addEventListener("change", () => {
+      cb.checked ? selected.add(value) : selected.delete(value);
+      onChange([...selected]);
+    });
+
+    lbl.appendChild(cb);
+    lbl.appendChild(span);
+    container.appendChild(lbl);
+  });
+}
+
+// ── Render all ────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderChart();
+  renderChangeTable();
+}
+
+// ── Series data ───────────────────────────────────────────────────────────────
+function getSeriesData() {
+  const countries = [currentCountry];
+  if (compCountry && compCountry !== currentCountry && COUNTRIES.includes(compCountry)) {
+    countries.push(compCountry);
+  }
+
+  const genders  = selGenders.length  ? selGenders  : ["total"];
+  const subItems = breakdown === "skill"
+    ? (selSkills.length  ? selSkills  : ["total"])
+    : (selAges.length    ? selAges    : ["total"]);
+
+  const series = [];
+  for (const cty of countries) {
+    const isComp = cty !== currentCountry;
+    const d = DATA[cty];
+    if (!d) continue;
+
+    for (const g of genders) {
+      for (const item of subItems) {
+        const skill = breakdown === "skill" ? item : "total";
+        const age   = breakdown === "age"   ? item : "total";
+        const key   = `${g}|${skill}|${age}`;
+        if (!d[key]) continue;
+
+        const sd = d[key];
+        const parts = [GENDER_LABEL[g]];
+        if (item !== "total") {
+          parts.push(breakdown === "skill" ? SKILL_LABEL[item] : AGE_LABEL[item]);
+        }
+        let label = parts.join(" · ");
+        if (isComp) label = `[${cty}] ${label}`;
+
+        const dash = breakdown === "skill" ? SKILL_DASH[item] : AGE_DASH[item];
+        const sym  = breakdown === "skill" ? SKILL_SYM[item]  : AGE_SYM[item];
+
+        series.push({
+          cty, g, item, label, isComp,
+          years: sd.years,
+          values: sd[currentVar] || sd.years.map(() => null),
+          dash, sym, color: GENDER_COLOR[g],
+        });
+      }
+    }
+  }
+  return series;
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function renderChart() {
+  const seriesList = getSeriesData();
+  const meta = VARS[currentVar];
+
+  const traces = [];
+  for (const s of seriesList) {
+    const lineDash = s.isComp
+      ? (s.dash === "solid" ? "longdash" : "longdashdot")
+      : s.dash;
+    const lw = s.isComp ? 1.6 : 2.2;
+
+    const hoverVals = s.values.map(v => {
+      if (v == null) return "n/a";
+      return meta.isPct
+        ? `${(v * 100).toFixed(1)}%`
+        : commaFmt(v, 1);
+    });
+
+    traces.push({
+      x: s.years, y: s.values,
+      mode: "lines+markers",
+      name: s.label,
+      line:   { color: s.color, width: lw, dash: lineDash },
+      marker: { color: s.color, size: 7, symbol: s.sym, line: { color: "white", width: 1.5 } },
+      customdata: hoverVals,
+      hovertemplate:
+        `<b>${s.cty}  ${s.label}</b><br>` +
+        `%{x}: %{customdata}<extra></extra>`,
+    });
+  }
+
+  // Title
+  let titleTxt = `<b>${meta.label}</b>  <span style="color:#94a3b8;font-size:13px">${currentCountry}`;
+  if (compCountry && compCountry !== currentCountry && COUNTRIES.includes(compCountry)) {
+    titleTxt += ` vs ${compCountry}`;
+  }
+  titleTxt += "</span>";
+
+  const layout = {
+    title: { text: titleTxt, font: { size: 15 }, x: 0, xanchor: "left" },
+    xaxis: {
+      title: null, showgrid: true, gridcolor: "#e2e8f0",
+      dtick: 1, tickangle: -30, tickfont: { size: 11 },
+    },
+    yaxis: {
+      title: { text: meta.ytitle, font: { size: 12 } },
+      tickformat: meta.isPct ? ".0%" : ",.0f",
+      rangemode: "tozero",
+      showgrid: true, gridcolor: "#e2e8f0",
+      zeroline: false, tickfont: { size: 11 },
+    },
+    plot_bgcolor: "white", paper_bgcolor: "#f8fafc",
+    legend: {
+      orientation: "h", yanchor: "top", y: -0.22,
+      xanchor: "center", x: 0.5, font: { size: 11 },
+    },
+    margin: { l: 75, r: 30, t: 55, b: 140 },
+    height: 460,
+    hovermode: "x unified",
+  };
+
+  Plotly.react("main-chart", traces, layout, PLOTLY_CONFIG);
+}
+
+// ── Change table ──────────────────────────────────────────────────────────────
+function renderChangeTable() {
+  const container = document.getElementById("change-table");
+  const seriesList = getSeriesData();
+  const meta = VARS[currentVar];
+
+  const rows = [];
+  for (const s of seriesList) {
+    let firstVal = null, firstYear = null, lastVal = null, lastYear = null;
+    for (let i = 0; i < s.values.length; i++) {
+      if (s.values[i] != null) {
+        if (firstVal === null) { firstVal = s.values[i]; firstYear = s.years[i]; }
+        lastVal = s.values[i]; lastYear = s.years[i];
+      }
+    }
+    if (firstVal === null || lastVal === null) continue;
+    rows.push({ label: s.label, color: s.color, firstYear, firstVal, lastYear, lastVal });
+  }
+
+  if (!rows.length) { container.innerHTML = ""; return; }
+
+  let html = `
+    <div class="change-table-wrap">
+      <div class="change-table-title">Cambio punta a punta</div>
+      <table class="change-table">
+        <thead>
+          <tr>
+            <th>Series</th>
+            <th style="text-align:center">Primer año</th>
+            <th style="text-align:center">Último año</th>
+            <th>Cambio</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  for (const r of rows) {
+    const delta = r.lastVal - r.firstVal;
+    const dcolor = meta.hib === null ? "#334155"
+      : delta > 0 === meta.hib ? "#15803d" : "#b91c1c";
+    const arrow = delta > 0 ? "▲" : delta < 0 ? "▼" : "—";
+    const dStr  = fmtDelta(delta, r.firstVal, meta.isPct);
+
+    html += `
+      <tr>
+        <td>
+          <span style="color:${r.color};margin-right:6px;font-size:13px">&#9679;</span>
+          <span style="font-size:12.5px;color:#1e293b">${r.label}</span>
+        </td>
+        <td style="text-align:center">
+          <span style="font-size:11px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;display:block">${r.firstYear}</span>
+          <span style="font-size:13px;font-weight:600;color:#334155;font-family:'IBM Plex Mono',monospace">${fmtVal(r.firstVal, meta.isPct)}</span>
+        </td>
+        <td style="text-align:center">
+          <span style="font-size:11px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;display:block">${r.lastYear}</span>
+          <span style="font-size:13px;font-weight:600;color:#334155;font-family:'IBM Plex Mono',monospace">${fmtVal(r.lastVal, meta.isPct)}</span>
+        </td>
+        <td>
+          <span style="font-size:14px;font-weight:700;color:${dcolor};font-family:'IBM Plex Mono',monospace">${arrow} ${dStr}</span>
+        </td>
+      </tr>
+    `;
+  }
+
+  html += `</tbody></table></div>`;
+  container.innerHTML = html;
+}
+
+// ── Format helpers ────────────────────────────────────────────────────────────
+function commaFmt(n, dec = 1) {
+  const abs = Math.abs(n).toFixed(dec);
+  const [int, frac] = abs.split(".");
+  const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return (n < 0 ? "-" : "") + intFmt + (dec > 0 ? "." + frac : "");
+}
+
+function fmtVal(v, isPct) {
+  if (v == null) return "n/a";
+  if (isPct) return `${(v * 100).toFixed(1)}%`;
+  return commaFmt(v, 1);
+}
+
+function fmtDelta(d, v0, isPct) {
+  const sign = d >= 0 ? "+" : "";
+  if (isPct) return `${sign}${(d * 100).toFixed(1)} pp`;
+  const abs = `${sign}${commaFmt(d, 1)}`;
+  if (!v0) return abs;
+  const pct = (d / Math.abs(v0)) * 100;
+  const ps  = pct >= 0 ? "+" : "";
+  return `${abs} (${ps}${pct.toFixed(1)}%)`;
+}
+</script>
+</body>
+</html>
