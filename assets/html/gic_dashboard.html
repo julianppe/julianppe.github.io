@@ -156,15 +156,15 @@
 
     <div id="series-controls" class="series-controls">
       <button class="toggle-btn active" data-series="male"
-              style="border:1px solid #1d4ed8;color:#1d4ed8">
-        &#9679; Male labor market
+              style="border:1px solid #0891b2;color:#0891b2">
+        &#9679; Male labor income
       </button>
       <button class="toggle-btn active" data-series="female"
               style="border:1px solid #b45309;color:#b45309">
-        &#9679; Female labor market
+        &#9679; Female labor income
       </button>
       <button class="toggle-btn active" data-series="nonlabor"
-              style="border:1px solid #15803d;color:#15803d">
+              style="border:1px solid #7c3aed;color:#7c3aed">
         &#9679; Non-labor income
       </button>
     </div>
@@ -185,9 +185,9 @@
 <script>
 // ── Constants ─────────────────────────────────────────────────────────────────
 const C_GIC    = "#1a56db";
-const C_MALE   = "#1d4ed8";
+const C_MALE   = "#0891b2";
 const C_FEMALE = "#b45309";
-const C_NONLAB = "#15803d";
+const C_NONLAB = "#7c3aed";
 const C_ZERO   = "#94a3b8";
 
 const TOOLTIP_GIC = (
@@ -199,12 +199,14 @@ const TOOLTIP_GIC = (
 );
 
 const TOOLTIP_DECOMP = (
-  "Each point shows the annualized contribution (in percentage points) of each " +
-  "income source to total per capita income growth at that percentile. " +
-  "The three contributions sum to the total annualized GIC at each percentile. " +
+  "Each bar shows the annualized contribution (in percentage points) of each " +
+  "income source to total per capita income growth at that decile. " +
+  "The three contributions sum to the total annualized GIC at each decile. " +
   "— Male labor: earnings × employment of male household members, divided by household size. " +
   "— Female labor: earnings × employment of female household members, divided by household size. " +
-  "— Non-labor: pensions, social transfers, remittances and other non-wage income per capita."
+  "— Non-labor: pensions, social transfers, remittances and other non-wage income per capita. " +
+  "Source: annualized contributions computed as (total-period share) × (annualized GIC), " +
+  "following the additive decomposition in the Stata script (contrib_X_ann variables)."
 );
 
 const PLOTLY_CONFIG = {
@@ -389,26 +391,37 @@ function renderChart() {
       line: { color: C_ZERO, width: 1, dash: "dot" },
     });
 
-    const series = [
-      { vals: d.male,     name: "Male labor market",   color: C_MALE,   dash: "solid",  sym: "circle",  key: "male" },
-      { vals: d.female,   name: "Female labor market", color: C_FEMALE, dash: "dash",   sym: "diamond", key: "female" },
-      { vals: d.nonlabor, name: "Non-labor income",    color: C_NONLAB, dash: "dot",    sym: "square",  key: "nonlabor" },
+    // Filter to decile breakpoints (P10, P20, ..., P100)
+    const decileIdxes = pct.map((p, i) => p % 10 === 0 ? i : -1).filter(i => i >= 0);
+    const decilePct   = decileIdxes.map(i => pct[i]);
+    const gicDec      = decileIdxes.map(i => d.gic[i]);
+    const maleDec     = decileIdxes.map(i => d.male[i]);
+    const femaleDec   = decileIdxes.map(i => d.female[i]);
+    const nonlabDec   = decileIdxes.map(i => d.nonlabor[i]);
+
+    const barSpecs = [
+      { vals: maleDec,   name: "Male labor income",   color: C_MALE,   key: "male",     htpl: "P%{x}  —  Male labor: <b>%{y:.3f} pp</b><extra></extra>" },
+      { vals: femaleDec, name: "Female labor income", color: C_FEMALE, key: "female",   htpl: "P%{x}  —  Female labor: <b>%{y:.3f} pp</b><extra></extra>" },
+      { vals: nonlabDec, name: "Non-labor income",    color: C_NONLAB, key: "nonlabor", htpl: "P%{x}  —  Non-labor: <b>%{y:.3f} pp</b><extra></extra>" },
     ];
 
-    series.forEach(({ vals, name, color, dash, sym, key }) => {
+    barSpecs.forEach(({ vals, name, color, key, htpl }) => {
       if (!seriesVisible[key]) return;
       traces.push({
-        x: pct, y: vals, mode: "lines", name,
-        line: { color, width: 2, dash },
-        hovertemplate: `<b>${name}</b>: %{y:+.3f} pp<extra></extra>`,
+        type: "bar",
+        x: decilePct, y: vals, name,
+        marker: { color },
+        hovertemplate: htpl,
       });
-      traces.push({
-        x: markerIdxes.map(i => pct[i]),
-        y: markerIdxes.map(i => vals[i]),
-        mode: "markers", name: "", showlegend: false,
-        marker: { color, size: 6, symbol: sym, line: { color: "white", width: 1.5 } },
-        hoverinfo: "skip",
-      });
+    });
+
+    // Total GIC line overlay
+    traces.push({
+      x: decilePct, y: gicDec,
+      mode: "lines+markers", name: "Total GIC",
+      line: { color: C_GIC, width: 2.5 },
+      marker: { color: C_GIC, size: 8, symbol: "circle", line: { color: "white", width: 1.5 } },
+      hovertemplate: "P%{x}  —  Total GIC: <b>%{y:.2f}%</b><extra></extra>",
     });
 
     yaxis_title = "Annualized contribution (pp)";
