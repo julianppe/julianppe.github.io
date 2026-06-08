@@ -27,7 +27,7 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-I am a PhD in Economics from the [Universidad Nacional de La Plata](https://www.unlp.edu.ar/) and a Senior Researcher at [CEDLAS](https://www.cedlas.econo.unlp.edu.ar/) (Centro de Estudios Distributivos, Laborales y Sociales) and [GenLAC](https://genlac.econo.unlp.edu.ar/home-en/). My research lies at the intersection of labor economics, gender economics, and development economics, with a focus on Latin America.
+I am a Senior Researcher at [CEDLAS](https://www.cedlas.econo.unlp.edu.ar/) (Centro de Estudios Distributivos, Laborales y Sociales) and [GenLAC](https://genlac.econo.unlp.edu.ar/home-en/), and hold a PhD in Economics from the [Universidad Nacional de La Plata](https://www.unlp.edu.ar/). My research lies at the intersection of labor economics, gender economics, and development economics, with a focus on Latin America.
 
 My work studies how gender gaps in the labor market emerge and persist, with particular attention to the role of motherhood, caregiving constraints, and structural transformation. I am also interested in the effects of forced migration and social programs on women's labor market outcomes and intra-household bargaining.
 
