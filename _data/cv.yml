@@ -20,7 +20,6 @@
       year: Jun-2026
       description:
         - La Plata, Buenos Aires
-        - "Mentors: Mariana Marchionni, Ines Berniell"
     - title: Master in Economics
       institution: National University of La Plata
       year: Jun-2021
@@ -36,7 +35,7 @@
 - title: Current Position
   type: time_table
   contents:
-    - title: Junior Researcher
+    - title: Senior Researcher
       institution: Center for Distributive, Labor and Social Studies (CEDLAS)
       year: 2020 - Present
 
