@@ -32,23 +32,31 @@
       description:
         - La Plata, Buenos Aires
 
-- title: Current Position
+- title: Position
   type: time_table
   contents:
     - title: Senior Researcher
       institution: Center for Distributive, Labor and Social Studies (CEDLAS)
-      year: 2020 - Present
+      year: 2026 - Present
+    - title: Junior Researcher
+      institution: Center for Distributive, Labor and Social Studies (CEDLAS)
+      year: 2020 - 2026
 
 - title: Publications
   type: time_table
   contents:
+    - title: Motherhood and the Onset of Intimate-partner Violence
+      year: Working Paper
+      description:
+        - With C. Bellés-Obrero, M. Lombardi & C. Navajas-Ahumada.
+        - CEDLAS WP. Submitted
     - title: Women, Motherhood, and Structural Transformation&#58; Insights from Rural Latin America
       year: Working Paper
       description:
         - With M. Marchionni & M.F. Pinto.
-        - CEDLAS WP
+        - CEDLAS WP. Submitted
     - title: Women Political Leaders as Agents of Environmental Change
-      year: R&R
+      year: "2026"
       description:
         - With M. Marchionni, Ines Berniell & Mariana Viollaz.
         - Journal of Development Economics
@@ -71,15 +79,18 @@
 - title: Teaching Experience
   type: time_table
   contents:
+    - title: Assistant Professor — Strategic Behavior (Game Theory)
+      institution: Department of Economics (FCE-UNLP)
+      year: 2026 - Present
     - title: Teaching Assistant — Microeconomics I
       institution: Department of Economics (FCE-UNLP)
-      year: 2022 - Present
+      year: 2022 - 2026
     - title: Teaching Assistant — Economics of Distribution
       institution: Department of Economics (FCE-UNLP)
       year: 2020 - Present
     - title: Teaching Assistant — Gender Economics
       institution: Department of Economics (FCE-UNLP)
-      year: 2020 - Present
+      year: 2020 - 2026
 
 - title: Honors and Scholarships
   type: time_table
@@ -95,7 +106,7 @@
   type: time_table
   contents:
     - title: Researcher, CAF Call
-      year: 2024 - Present
+      year: 2024 - 2025
       description:
         - "Project: The Rural World in Latin America and the Caribbean"
     - title: Researcher, GDLab-BID Call
@@ -106,6 +117,21 @@
       year: 2021 - 2023
       description:
         - "Project: Advancing LGBTQ+ inclusion with cutting-edge research"
+
+- title: Thesis Examiner
+  type: list
+  contents:
+    - "Master thesis examiner: Carlos Salas Peña"
+
+- title: Thesis Supervision
+  type: list
+  contents:
+    - "Master thesis supervision: Manuel Moreno, Candela Vollmer, Valeria Garcés, Pablo Gallo"
+
+- title: Referee Activity
+  type: list
+  contents:
+    - Revista Económica La Plata, Journal of Development Studies, World Development & Estudios de Economía
 
 - title: Skills
   type: nested_list

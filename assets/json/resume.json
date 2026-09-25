@@ -21,8 +21,17 @@
       "name": "Center for Distributive, Labor and Social Studies (CEDLAS)",
       "position": "Senior Researcher",
       "url": "https://www.cedlas.econo.unlp.edu.ar/",
-      "startDate": "2020-01-01",
+      "startDate": "2026-01-01",
       "endDate": "",
+      "summary": "",
+      "highlights": []
+    },
+    {
+      "name": "Center for Distributive, Labor and Social Studies (CEDLAS)",
+      "position": "Junior Researcher",
+      "url": "https://www.cedlas.econo.unlp.edu.ar/",
+      "startDate": "2020-01-01",
+      "endDate": "2026-01-01",
       "summary": "",
       "highlights": []
     }
@@ -31,10 +40,20 @@
     {
       "organization": "Department of Economics (FCE-UNLP)",
       "location": "La Plata, Argentina",
+      "position": "Assistant Professor — Strategic Behavior (Game Theory)",
+      "url": "",
+      "startDate": "2026-01-01",
+      "endDate": "",
+      "summary": "",
+      "highlights": []
+    },
+    {
+      "organization": "Department of Economics (FCE-UNLP)",
+      "location": "La Plata, Argentina",
       "position": "Teaching Assistant — Microeconomics I",
       "url": "",
       "startDate": "2022-08-01",
-      "endDate": "",
+      "endDate": "2026-01-01",
       "summary": "",
       "highlights": []
     },
@@ -54,7 +73,7 @@
       "position": "Teaching Assistant — Gender Economics",
       "url": "",
       "startDate": "2020-06-01",
-      "endDate": "",
+      "endDate": "2026-01-01",
       "summary": "",
       "highlights": []
     }
@@ -113,16 +132,23 @@
   "certificates": [],
   "publications": [
     {
+      "name": "Motherhood and the Onset of Intimate-partner Violence",
+      "publisher": "CEDLAS Working Paper. Submitted",
+      "releaseDate": "2026-09-01",
+      "url": "https://www.cedlas.econo.unlp.edu.ar/wp/wp-content/uploads/doc_cedlas381.pdf",
+      "summary": "With C. Bellés-Obrero, M. Lombardi & C. Navajas-Ahumada."
+    },
+    {
       "name": "Women, Motherhood, and Structural Transformation: Insights from Rural Latin America",
-      "publisher": "CEDLAS Working Paper",
+      "publisher": "CEDLAS Working Paper. Submitted",
       "releaseDate": "",
       "url": "",
       "summary": "With M. Marchionni & M.F. Pinto."
     },
     {
       "name": "Women Political Leaders as Agents of Environmental Change",
-      "publisher": "R&R — Journal of Development Economics",
-      "releaseDate": "",
+      "publisher": "Journal of Development Economics",
+      "releaseDate": "2026-01-01",
       "url": "",
       "summary": "With M. Marchionni, Ines Berniell & Mariana Viollaz."
     },
@@ -153,13 +179,20 @@
       "name": "Programming",
       "level": "Proficient",
       "icon": "fa-solid fa-code",
-      "keywords": ["Stata", "Python", "LaTeX"]
+      "keywords": [
+        "Stata",
+        "Python",
+        "LaTeX"
+      ]
     },
     {
       "name": "Programming",
       "level": "Familiar",
       "icon": "fa-solid fa-chart-bar",
-      "keywords": ["R", "Power BI"]
+      "keywords": [
+        "R",
+        "Power BI"
+      ]
     }
   ],
   "languages": [
@@ -192,7 +225,7 @@
       "summary": "The Rural World in Latin America and the Caribbean",
       "highlights": [],
       "startDate": "2024-08-01",
-      "endDate": "",
+      "endDate": "2025-01-01",
       "url": ""
     },
     {
